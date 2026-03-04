@@ -12,6 +12,29 @@ from psychopy import logging, prefs, core, visual, event, monitors
 from PFCG_cfg import stimwd, datawd, preload_stimuli
 from pfcg_utils.utils_stimuli import StimulusPresenter, sec_to_fr
 from pfcg_utils.utils_trials import get_block_trialtypes, get_block_cuetypes
+from pypixxlib.datapixx import DATAPixx3
+# ==================== VPIXX ==================== #
+# triggers
+TRIG_left  = 3  # 00000011
+TRIG_right = 4  # 00000100 
+TRIG_other = 5  # 00000101  
+
+device      = DATAPixx3()
+
+# enable pixel mode once
+device.dout.enablePixelModeGB()
+device.updateRegisterCache() 
+
+# Working codes in Lab maestro Simulator
+buttonCodes = {65527:'blue', 65533:'yellow', 65534:'red', 65531:'green', 65519:'white', 65535:'button release'}
+exitButton  = 'white'
+# Button codes in MSR
+#buttonCodes = { 65528: 'blue', 65522: 'yellow', 65521: 'red', 65524: 'green', 65520: 'button release' }
+
+# Initialize button
+myLog = device.din.setDinLog(12e6, 1000)
+device.din.startDinLog()
+device.updateRegisterCache()
 
 
 # ==================== MONITOR ==================== #
