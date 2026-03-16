@@ -1,7 +1,7 @@
 from psychopy import visual, core, event, monitors, logging, sound, parallel
 import psychtoolbox as ptb
 import numpy as np
-from pfcg_utils.PixelMode import drawPixelModeTrigger, Trigger2RGB
+from pfcg_utils.PixelMode import Trigger2GB, drawPixelModeTrigger, Trigger2RGB
 
 # Initialize port (use your correct address)
 TestingPort = True # True if on a laptop. False if in EEG-lab/Sudring -----------> ADAPT
@@ -66,7 +66,7 @@ class StimulusPresenter:
     
     def send_trigger_opm(self, code):
         """Sends a trigger code using pixel mode"""
-        drawPixelModeTrigger(self.win, Trigger2RGB(code))
+        drawPixelModeTrigger(self.win, Trigger2GB(code))
         # self.win.flip()
 
     def present_stimulus(self, stimulus, duration, trigger_code=None):
@@ -151,9 +151,9 @@ class StimulusPresenter:
     
 
     def get_response_trigger_code(self, key_pressed):
-        if key_pressed == 65531:
+        if key_pressed == 'green':
             return 3
-        elif key_pressed == 65534: 
+        elif key_pressed == 'red': 
             return 4
         else: 
             return 5

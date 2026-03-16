@@ -29,7 +29,7 @@ def read_button_press(device, button_log):
     try:
         device.updateRegisterCache()
         device.din.getDinLogStatus(button_log)
-        new_events = button_log.get("newLogFrames", 0)
+        new_events = button_log["newLogFrames"]
         
         if new_events > 0:
             event_list = device.din.readDinLog(button_log, new_events)

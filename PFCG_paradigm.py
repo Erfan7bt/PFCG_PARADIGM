@@ -14,7 +14,7 @@ from pfcg_utils.utils_bottons import flush_button_buffer,cleanup_and_exit, read_
 from pfcg_utils.utils_stimuli import StimulusPresenter, sec_to_fr
 from pfcg_utils.utils_trials import get_block_trialtypes, get_block_cuetypes
 # from pfcg_utils.buttons import collect_response, flush_buttons
-from pfcg_utils.PixelMode import drawPixelModeTrigger, RGB2Trigger, Trigger2RGB, print_trigger_info
+from pfcg_utils.PixelMode import drawPixelModeTrigger, RGB2Trigger, Trigger2RGB, print_trigger_info, GB2trigger, Trigger2GB
 from pypixxlib.datapixx import DATAPixx3
 
 
@@ -47,7 +47,7 @@ TestingPort = True      # True if on a laptop. False if in EEG-lab/Sudring -----
 if TestingPort:
     viewing_distance_cm = 57.3    
     monitor_width_cm    = 52.7
-    monitor_size_pix    = [1920,1080]
+    monitor_size_pix    = [1920,720]
     monitor_name        = "testMonitor"
     
 else:   #----------------------> # change OPM/EEG lab port settings
@@ -74,7 +74,7 @@ monitor.setSizePix(monitor_size_pix)
 monitor.save()
 
 # win = visual.Window(monitor=monitor, fullscr=True, color=("#AAAAAA"), units="deg") # Create the window with aforementioned monitor
-win = visual.Window( monitor=monitor_name, color=("#AAAAAA"), units="pix",screen=1, size = [1920, 1080], allowGUI=False, fullscr=True) # Create the window with aforementioned monitor
+win = visual.Window( monitor=monitor_name, color=("#AAAAAA"), units="pix",screen=0, size = [1920, 720], allowGUI=False, fullscr=True) # Create the window with aforementioned monitor
 win.mouseVisible = False # Hide mouse
 
 # ==================== SET PARTICIPANT ID ==================== #
@@ -102,7 +102,7 @@ datafile_path = os.path.join(participant_dir, f"{participant_id}_behaviour_{date
 if not os.path.exists(datafile_path):
     with open(datafile_path, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(['block', 'trial', 'trialtype', 'trialtype_string', 'cuetype', 'cuetype_string', 'correct_key', 'key_pressed','is_resp_corr', 'reaction_time'])
+        writer.writerow(['block', 'trial', 'trialtype', 'trialtype_string', 'cuetype', 'cuetype_string', 'correct_key', 'key_pressed','is_resp_corr', 'reaction_time', 'reaction_time_vpixx'])  # Add reaction_time_vpixx to headers
 
 # ==================== EXPERIMENT ==================== #
 symbol_offset = 1.5 # sets degrees from the centre --------------------------> is this OK also for the OPM lab
@@ -157,27 +157,27 @@ for group_idx in range(num_groups):
         flush_button_buffer(device, myLog)  # Clear any old button presses from the buffer
 
     # Task begins here for each mini-block
+
     
     # Show baseline cue for 500ms
     stimuli['cue_baseline'].draw()
-    drawPixelModeTrigger(win, Trigger2RGB(10))  # send trigger using pixel mode
+    drawPixelModeTrigger(win, Trigger2GB(10)) 
     win.flip()
     core.wait(0.5)
-    # print_trigger_info(device)  # Debugging output to check the video line value
+    print_trigger_info(device)  # Debugging output to check the video line value
     
     # Show fixation for 2500ms
     stimuli['Fix_Dot'].draw()
-    drawPixelModeTrigger(win,  Trigger2RGB(9))
     win.flip()
     core.wait(2.5)
-    # print_trigger_info(device) # Debugging output to check the video line value
+    print_trigger_info(device) # Debugging output to check the video line value
 
     # Show cue_cong or cue_incg for 500ms
     cue_stimulus = presenter.get_cue_stimulus(stimuli, cueid)
     cue_trigger_code = presenter.get_cue_trigger_code(cueid)
     presenter.present_cue(cue_stimulus, trigger_code=cue_trigger_code)
     
-    # print_trigger_info(device) # Debugging output to check the video line value
+    print_trigger_info(device) # Debugging output to check the video line value
 
     # Show fixation. Jitter between 1400-1600ms
     jitter = np.random.choice(np.arange(1.4, 1.61, 0.01))
@@ -185,7 +185,7 @@ for group_idx in range(num_groups):
  
     post_cue_jitter = presenter.present_fixation(stimuli['Fix_Dot'], duration=jitter)
 
-    # print_trigger_info(device) # Debugging output to check the video line value
+    print_trigger_info(device) # Debugging output to check the video line value
 
     # Present 5 trials of gratings
     # start_idx and end_idx calling the appropriate row in the data (AKA conditions) file
@@ -207,16 +207,22 @@ for group_idx in range(num_groups):
         # Send trigger at Flip
         if target_trigger_code is not None:
             # win.callOnFlip(presenter.send_trigger, target_trigger_code)
-            drawPixelModeTrigger(win, Trigger2RGB(target_trigger_code))  # send trigger using pixel mode
+            drawPixelModeTrigger(win, Trigger2GB(target_trigger_code))  # send trigger using pixel mode
 
-        win.flip()
-        print_trigger_info(device) 
-            
         timer = core.Clock()
+        flip_marks = {}
+        device.updateRegisterCache()
+        win.callOnFlip(lambda: flip_marks.setdefault('t0_dev', device.getTime()))
+        win.callOnFlip(timer.reset)
+        win.flip()
+        print_trigger_info(device) # Debugging output to check the video line value and timing of trigger relative to stimulus onset
+        
         
         # Initialize response variables
+        t_0_v = flip_marks['t0_dev']
         key_pressed = None
         reaction_time = None
+        reaction_time_vpixx = None
         arrow_duration = 0.5
         response_deadline = arrow_duration + jitter
 
@@ -229,10 +235,13 @@ for group_idx in range(num_groups):
             button_name, timestamp = read_button_press(device, myLog)  # Check for button presses
             key_pressed = button_name
             if key_pressed:
-                # key_pressed = button_name
+               
                 reaction_time = timer.getTime()
+                reaction_time_vpixx = timestamp - t_0_v  # Calculate reaction time based on VPixx timestamp
+
                 response_trigger_code = presenter.get_response_trigger_code(key_pressed)
                 presenter.send_trigger_opm(response_trigger_code)  # send response trigger using pixel mode
+                presenter.win.flip()  # Ensure the trigger is sent immediately
 
                 if key_pressed == "white":  # exit button
                     cleanup_and_exit(device, win)
@@ -241,23 +250,26 @@ for group_idx in range(num_groups):
         # Show fixation
         #win.callOnFlip(presenter.send_trigger, 9)    # johanna commented this out on request of tineke
         stimuli['Fix_Dot'].draw()
+        win.callOnFlip(timer.reset)  # Mark fixation onset time
         win.flip()
-        # print_trigger_info(device) # Debugging output to check the video line value
+        print_trigger_info(device) # Debugging output to check the video line value
         
-        timer = core.Clock()  # Reset timer for fixation period
+        # timer = core.Clock()  # Reset timer for fixation period
         
         # Continue monitoring during fixation if no response yet
         if not key_pressed:
             while timer.getTime() < jitter:
-                flush_button_buffer(device, myLog)  # Clear any old button presses from the buffer
+                # flush_button_buffer(device, myLog)  # Clear any old button presses from the buffer
                 button_name, timestamp = read_button_press(device, myLog)  # Check for button presses
                 if button_name:
                     key_pressed = button_name
                     # RT during fixation = 0.5 + time into fixation
                     reaction_time = arrow_duration + timer.getTime()
+                    reaction_time_vpixx = timestamp - t_0_v  # Calculate reaction time based on VPixx timestamp
                     response_trigger_code = presenter.get_response_trigger_code(key_pressed)
-                    presenter.send_trigger(response_trigger_code)
-                    
+                    presenter.send_trigger_opm(response_trigger_code)
+                    presenter.win.flip()  # Ensure the trigger is sent immediately
+
                     if key_pressed == 'white':  # exit button
                         # core.quit()
                         cleanup_and_exit(device, win)
@@ -302,6 +314,8 @@ for group_idx in range(num_groups):
             is_resp_corr = 0
         total_trials += 1
         
+        reaction_time = round(reaction_time, 4) if reaction_time is not None else None
+        reaction_time_vpixx = round(reaction_time_vpixx, 4) if reaction_time_vpixx is not None else None
         # Write to CSV
         with open(datafile_path, 'a', newline='') as f:
             writer = csv.writer(f)
@@ -316,6 +330,7 @@ for group_idx in range(num_groups):
                 key_pressed,    # key_pressed
                 is_resp_corr,   # correct
                 reaction_time,  # reaction time
+                reaction_time_vpixx, # reaction time based on VPixx timestamp
             ])
 
 # Calculate and display accuracy
@@ -325,15 +340,26 @@ else:
     accuracy_percentage = 0
 
 # Create accuracy feedback text
-accuracy_text = visual.TextStim(
+# accuracy_text = visual.TextStim(
+#     win,
+#     text=f'Block {BLOCK}/10 is now complete. \n\nYou were correct on {accuracy_percentage:.1f}% of trials.\n\nThank you for your participation!',
+#     color='white',
+#     height=1,
+#     pos=(0, 0),
+#     units='deg',
+#     wrapWidth=60
+# )
+accuracy_text_DE = visual.TextStim(
     win,
-    text=f'Block {BLOCK}/10 is now complete. \n\nYou were correct on {accuracy_percentage:.1f}% of trials.\n\nThank you for your participation!',
+    text=f'Block {BLOCK}/10 ist jetzt abgeschlossen. \n\nSie waren auf {accuracy_percentage:.1f}% der Versuche korrekt.\n\nVielen Dank für Ihre Teilnahme!',
     color='white',
     height=1,
     pos=(0, 0),
     units='deg',
     wrapWidth=60
 )
+
+accuracy_text = accuracy_text_DE  # Assuming you want to show the German version of the accuracy text
 
 accuracy_text.draw()
 win.flip()
