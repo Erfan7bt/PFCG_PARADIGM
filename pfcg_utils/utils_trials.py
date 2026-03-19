@@ -43,6 +43,7 @@ def get_block_cuetypes(block_number: int, participant_id: str, data_dir: str = "
         return cuetypes
 
 def shuffle_blocks(participant_id, save_dir):
+
     """
     Shuffles the blocks from the master_blocks.csv file
     Saves to the participant directory
@@ -77,3 +78,4 @@ def shuffle_blocks(participant_id, save_dir):
     # Save to participant-specific file
     df_shuffled.to_csv(output_csv_path, index=False)
     print(f"Shuffled blocks successfully written to: {output_csv_path}")
+
