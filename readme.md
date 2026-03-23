@@ -2,11 +2,11 @@
 
 To run the practice and ten runs of experiment use .\RUN_PFCG.bat on CLI with partoipant name followed by it :
 
-	<.\RUN_PFCG.bat participant_name>
+	.\RUN_PFCG.bat participant_name
 
 after each runs you can continue with pressing space key
 
-
+### Previous 
 Brief overview of the structure
 
 Folders:
