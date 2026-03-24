@@ -3,9 +3,9 @@ from pypixxlib import _libdpx as dp
 
 from pfcg_utils.PixelMode import RGB2Trigger
 
-BUTTON_CODES_ALL = {65527:'blue', 65533:'yellow', 65534:'red', 65531:'green', 65519:'white', 65535:'button release'}
+# BUTTON_CODES_ALL = {65527:'blue', 65533:'yellow', 65534:'red', 65531:'green', 65519:'white', 65535:'button release'}
 # 
-#BUTTON_CODES_ALL = { 65528: 'blue', 65522: 'yellow', 65521: 'red', 65524: 'green', 65520: 'button release' }
+BUTTON_CODES_ALL = { 65528: 'blue', 65522: 'yellow', 65521: 'red', 65524: 'green', 65520: 'button release' }
 
 def stopButtons(startAndStopButtons):
     while True:
@@ -38,7 +38,7 @@ def read_button_press(device, button_log):
                 if code in BUTTON_CODES_ALL:
                     button_name = BUTTON_CODES_ALL[code]
                     # # Only return green or red button presses
-                    if button_name in ("red", "green","white"):
+                    if button_name in ("red", "green","blue"):
                         return button_name, timestamp
     except Exception as e:
         print(f"✗ Error reading button: {e}")

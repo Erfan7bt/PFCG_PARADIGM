@@ -147,7 +147,7 @@ for BLOCK in block:
             stimuli['welcome_text'].draw()
             win.flip()
             button_name = None
-            while button_name != 'white':  # Wait until a button is pressed
+            while button_name != 'blue':  # Wait until a button is pressed
                 button_name, _ = read_button_press(device, myLog)
             rt_clock.reset()
             event.clearEvents()
@@ -156,7 +156,7 @@ for BLOCK in block:
             stimuli['begin_text'].draw()
             win.flip()
             button_name = None
-            while button_name != 'white':  # Wait until a button is pressed
+            while button_name != 'blue':  # Wait until a button is pressed
                 button_name, _ = read_button_press(device, myLog)
             rt_clock.reset()
             event.clearEvents()
@@ -245,9 +245,9 @@ for BLOCK in block:
                     presenter.send_trigger_opm(response_trigger_code)  # send response trigger using pixel mode
                     presenter.win.flip()  # Ensure the trigger is sent immediately
 
-                    if key_pressed == "white":  # exit button can be reomeved if not desired to allow exit 
-                        cleanup_and_exit(device, win)
-                    break
+                    # if key_pressed == "white":  # exit button can be reomeved if not desired to allow exit 
+                    #     cleanup_and_exit(device, win)
+                    # break
                     
             # Show fixation
             stimuli['Fix_Dot'].draw()
@@ -268,9 +268,9 @@ for BLOCK in block:
                         presenter.send_trigger_opm(response_trigger_code)
                         presenter.win.flip()  # Ensure the trigger is sent immediately
 
-                        if key_pressed == 'white':  # exit button can be reomeved if not desired to allow exit 
-                            cleanup_and_exit(device, win)
-                        break
+                        # if key_pressed == 'white':  # exit button can be reomeved if not desired to allow exit 
+                        #     cleanup_and_exit(device, win)
+                        # break
 
                 # Wait for any remaining fixation time
                 remaining_time = jitter - timer.getTime()

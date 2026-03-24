@@ -108,7 +108,7 @@ for group_idx in range(num_groups):
         stimuli['welcome_practice'].draw()
         win.flip()
         button_name = None
-        while button_name != 'white':  # Wait until a button is pressed
+        while button_name != 'blue':  # Wait until a button is pressed
             button_name, _ = read_button_press(device, myLog)
         rt_clock.reset()
         event.clearEvents()
@@ -118,7 +118,7 @@ for group_idx in range(num_groups):
         stimuli['instructions_1'].draw()
         win.flip()
         button_name = None
-        while button_name !=  'white':  # Wait until a button is pressed
+        while button_name !=  'blue':  # Wait until a button is pressed
             button_name, _ = read_button_press(device, myLog)
         rt_clock.reset()
         event.clearEvents()
@@ -127,7 +127,7 @@ for group_idx in range(num_groups):
         stimuli['instructions_2'].draw()
         win.flip()
         button_name = None
-        while button_name != 'white':  # Wait until a button is pressed
+        while button_name != 'blue':  # Wait until a button is pressed
             button_name, _ = read_button_press(device, myLog)
         rt_clock.reset()
         event.clearEvents()
@@ -136,7 +136,7 @@ for group_idx in range(num_groups):
         stimuli['begin_text'].draw()
         win.flip()
         button_name = None
-        while button_name != 'white':  # Wait until a button is pressed
+        while button_name != 'blue':  # Wait until a button is pressed
             button_name, _ = read_button_press(device, myLog)
         rt_clock.reset()
         event.clearEvents()

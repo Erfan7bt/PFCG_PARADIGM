@@ -12,7 +12,7 @@ if "%PARTICIPANT%"=="" (
     pause
     exit /b
 )
-
+@REM make sure the python in psychopy path in vpixx computer is added her 
 "C:\Users\barada01\AppData\Local\Programs\PsychoPy\python.exe" "C:\Users\barada01\Documents\paradigm\BI exp\BI-task-switch\psychopy-PFC\PFCG_PARADIGM\PFCG_paradigm_practice.py" > "%LOGFILE%" 2>&1
 
 if errorlevel 1 (
