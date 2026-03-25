@@ -60,7 +60,7 @@ flush_button_buffer(device, myLog)
 
 
 # ==================== MONITOR ==================== #
-TestingPort = True      # True if on a laptop. 
+TestingPort = False      # True if on a laptop. 
 
 if TestingPort:
     viewing_distance_cm = 57.3    
@@ -71,7 +71,7 @@ if TestingPort:
 else:   #----------------------> # change OPM/EEG lab port settings
     viewing_distance_cm = 90    
     monitor_width_cm    = 53.7
-    monitor_size_pix    = [1920, 1200]
+    monitor_size_pix    = [1920, 1080]
     monitor_name        = "OPM-lab"
     
 """ change the else loop if in EEG Lab Suedring to:
